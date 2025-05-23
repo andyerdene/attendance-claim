@@ -1,12 +1,7 @@
 import { AttendanceButtonScreen } from "@/components/ui/ClaimButton";
+import { Audio } from "expo-av";
 import { useState } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const mockDates = [
   { day: 12, label: "SAT" },
@@ -27,10 +22,20 @@ export default function HomeScreen() {
   const [score, setScore] = useState(0);
   const [displayScore, setDisplayScore] = useState(0);
   const [selectedDay, setSelectedDay] = useState(19); // e.g., today
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  async function playSound() {
+    console.log("Loading Sound");
+    const { sound } = await Audio.Sound.createAsync(require("../assets/success.wav"));
+    setSound(sound);
+
+    await sound.playAsync();
+  }
 
   const handleClaim = () => {
     const target = score + 10;
     setScore(target);
+    playSound();
 
     let current = displayScore;
     const interval = setInterval(() => {
@@ -62,33 +67,11 @@ export default function HomeScreen() {
         renderItem={({ item }) => {
           const isSelected = item.day === selectedDay;
           return (
-            <TouchableOpacity
-              onPress={() => setSelectedDay(item.day)}
-              style={styles.dateItem}
-            >
-              <View
-                style={[
-                  styles.dateCircle,
-                  isSelected && styles.dateCircleSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.dateText,
-                    isSelected && styles.dateTextSelected,
-                  ]}
-                >
-                  {item.day}
-                </Text>
+            <TouchableOpacity onPress={() => setSelectedDay(item.day)} style={styles.dateItem}>
+              <View style={[styles.dateCircle, isSelected && styles.dateCircleSelected]}>
+                <Text style={[styles.dateText, isSelected && styles.dateTextSelected]}>{item.day}</Text>
               </View>
-              <Text
-                style={[
-                  styles.dateLabel,
-                  isSelected && styles.dateLabelSelected,
-                ]}
-              >
-                {item.label}
-              </Text>
+              <Text style={[styles.dateLabel, isSelected && styles.dateLabelSelected]}>{item.label}</Text>
             </TouchableOpacity>
           );
         }}

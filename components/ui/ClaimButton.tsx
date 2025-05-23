@@ -1,12 +1,5 @@
 import React, { useRef, useState } from "react";
-import {
-  Animated,
-  Easing,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Animated, Easing, StyleSheet, Text, TouchableOpacity, Vibration, View } from "react-native";
 
 const HOLD_DURATION = 1500;
 type Props = {
@@ -49,7 +42,6 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
   };
 
   const handlePressIn = () => {
-    // Start growing animation
     chargeAnim.setValue(0);
     Animated.timing(chargeAnim, {
       toValue: 1,
@@ -58,8 +50,12 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
       useNativeDriver: true,
     }).start();
 
+    // Vibrate in pattern to simulate continuous feedback
+    Vibration.vibrate([0, 100, 100], true); // repeat = true
+
     timeoutRef.current = setTimeout(() => {
       triggerExpEffect();
+      Vibration.cancel(); // stop vibration after successful claim
     }, HOLD_DURATION);
   };
 
@@ -68,13 +64,15 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    // Stop charging if released early
+
     chargeAnim.stopAnimation();
     Animated.timing(chargeAnim, {
       toValue: 0,
       duration: 200,
       useNativeDriver: true,
     }).start();
+
+    Vibration.cancel(); // Stop vibration when released early
   };
 
   const chargeScale = chargeAnim.interpolate({
@@ -114,9 +112,7 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
       )}
 
       <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut}>
-        <Animated.View
-          style={[styles.circleButton, { transform: [{ scale: scaleAnim }] }]}
-        >
+        <Animated.View style={[styles.circleButton, { transform: [{ scale: scaleAnim }] }]}>
           <Animated.View
             style={[
               styles.chargeCircle,
