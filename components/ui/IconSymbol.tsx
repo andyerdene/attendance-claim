@@ -1,41 +1,76 @@
-// Fallback for using MaterialIcons on Android and web.
+import React from "react";
+import { ViewStyle } from "react-native";
+import { G, Path, Svg } from "react-native-svg";
 
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolWeight, SymbolViewProps } from 'expo-symbols';
-import { ComponentProps } from 'react';
-import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
+type IconSymbolProps = {
+  name?: "home" | "explore" | "profile";
+  width?: number;
+  height?: number;
+  style?: ViewStyle;
+};
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
-type IconSymbolName = keyof typeof MAPPING;
-
-/**
- * Add your SF Symbols to Material Icons mappings here.
- * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
- * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
- */
-const MAPPING = {
-  'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
-  'chevron.right': 'chevron-right',
-} as IconMapping;
-
-/**
- * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
- */
 export function IconSymbol({
-  name,
-  size = 24,
-  color,
+  name = "home",
+  width = 32,
+  height = 28,
   style,
-}: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-  weight?: SymbolWeight;
-}) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+}: IconSymbolProps) {
+  if (name === "explore") {
+    return (
+      <Svg
+        width={width}
+        height={width}
+        viewBox="0 0 32 32"
+        fill="none"
+        style={style}
+      >
+        <Path
+          d="M16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2ZM16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16C28 22.6274 22.6274 28 16 28Z"
+          fill="rgba(0, 255, 0, 0.5)"
+        />
+        <Path d="M12 20L20 12L16 16L12 20Z" fill="rgba(0, 255, 0, 0.5)" />
+      </Svg>
+    );
+  }
+
+  if (name === "profile") {
+    return (
+      <Svg
+        width={width}
+        height={width}
+        viewBox="0 0 32 32"
+        fill="none"
+        style={style}
+      >
+        <Path
+          d="M16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2ZM16 28C13.3478 28 10.8043 26.9464 8.92893 25.0711C9.3878 23.0357 12.4444 21.6 16 21.6C19.5556 21.6 22.6122 23.0357 23.0711 25.0711C21.1957 26.9464 18.6522 28 16 28ZM16 6C17.5913 6 19.1174 6.63214 20.2426 7.75736C21.3679 8.88258 22 10.4087 22 12C22 13.5913 21.3679 15.1174 20.2426 16.2426C19.1174 17.3679 17.5913 18 16 18C14.4087 18 12.8826 17.3679 11.7574 16.2426C10.6321 15.1174 10 13.5913 10 12C10 10.4087 10.6321 8.88258 11.7574 7.75736C12.8826 6.63214 14.4087 6 16 6Z"
+          fill="rgba(0, 255, 0, 0.5)"
+        />
+      </Svg>
+    );
+  }
+
+  // Default icon: Home (your current center icon)
+  return (
+    <Svg
+      width={width}
+      height={height}
+      viewBox="0 0 32 28"
+      fill="none"
+      style={style}
+    >
+      <G id="Logo">
+        <G id="Vector">
+          <Path
+            d="M5.11038 2.76848L0.806264 10.8246C0.269142 11.8328 0 12.9394 0 14.0474C0 15.1556 0.269142 16.2619 0.806264 17.2702L5.11038 25.3265C5.9037 26.8145 7.45516 27.7439 9.14352 27.7439H13.7153V25.4617H13.7138C12.8704 25.4617 12.0946 24.9977 11.6979 24.2538L7.39543 16.196C7.03585 15.5243 6.85665 14.7867 6.85665 14.0474C6.85665 13.3081 7.03585 12.5705 7.39543 11.899L11.6979 3.84121C12.0946 3.09711 12.8704 2.63325 13.7138 2.63325H13.7153V0.350922H9.14352C7.45516 0.350922 5.9037 1.28046 5.11038 2.76848Z"
+            fill={"rgba(0, 255, 0, 0.5)"}
+          />
+          <Path
+            d="M31.1937 10.8247L26.8898 2.76854C26.0963 1.28036 24.545 0.350981 22.8567 0.350981H18.2847V2.63315H18.2864C19.1298 2.63315 19.9055 3.09717 20.3021 3.8411L24.6046 11.8989C24.9643 12.5705 25.1432 13.3082 25.1432 14.0475C25.1432 14.7867 24.9643 15.5244 24.6046 16.1961L20.3021 24.2537C19.9055 24.9977 19.1298 25.4616 18.2864 25.4616H18.2847V27.7439H22.8567C24.545 27.7439 26.0963 26.8146 26.8898 25.3264L31.1937 17.2703C31.7307 16.262 32 15.1555 32 14.0475C32 12.9394 31.7307 11.8329 31.1937 10.8247Z"
+            fill={"rgba(0, 255, 0, 0.5)"}
+          />
+        </G>
+      </G>
+    </Svg>
+  );
 }
