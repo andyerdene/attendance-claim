@@ -1,169 +1,93 @@
+import { DaySelector } from "@/components/home/DaySelector";
+import { ScoreDisplay } from "@/components/home/ScoreDisplay";
 import { AttendanceButtonScreen } from "@/components/ui/ClaimButton";
-import { useState } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-const mockDates = [
-  { day: 12, label: "SAT" },
-  { day: 13, label: "SUN" },
-  { day: 14, label: "MON" },
-  { day: 15, label: "TUE" },
-  { day: 16, label: "WED" },
-  { day: 17, label: "SAT" },
-  { day: 18, label: "SUN" },
-  { day: 19, label: "MON" },
-  { day: 20, label: "TUE" },
-  { day: 21, label: "WED" },
-  { day: 22, label: "THU" },
-  { day: 23, label: "TODAY" },
-];
+import dayjs from "dayjs";
+import { Audio } from "expo-av";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 export default function HomeScreen() {
   const [score, setScore] = useState(0);
   const [displayScore, setDisplayScore] = useState(0);
-  const [selectedDay, setSelectedDay] = useState(19); // e.g., today
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [dates, setDates] = useState<
+    { day: number; label: string; isClaimed: boolean; disabled: boolean }[]
+  >([]);
+
+  async function playSound() {
+    const { sound } = await Audio.Sound.createAsync(
+      require("../assets/success.wav")
+    );
+
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    const today = dayjs();
+    const newDates = [];
+
+    for (let i = -4; i <= 2; i++) {
+      const date = today.add(i, "day");
+      newDates.push({
+        day: date.date(),
+        label: i === 0 ? "TODAY" : date.format("ddd").toUpperCase(),
+        isClaimed: false,
+        disabled: i > 0,
+      });
+    }
+
+    setDates(newDates);
+    setSelectedDay(today.date());
+  }, []);
 
   const handleClaim = () => {
+    if (selectedDay == null) return;
+
+    const selectedDate = dates.find((d) => d.day === selectedDay);
+    if (!selectedDate || selectedDate.disabled || selectedDate.isClaimed)
+      return;
+
     const target = score + 10;
+    playSound();
+
     setScore(target);
+    setDates((prev) =>
+      prev.map((date) =>
+        date.day === selectedDay ? { ...date, isClaimed: true } : date
+      )
+    );
 
     let current = displayScore;
     const interval = setInterval(() => {
       current += 1;
       setDisplayScore(current);
-      if (current >= target) {
-        clearInterval(interval); // ❌ This clears the interval from inside but doesn't stop `current += 1`
-      }
+      if (current >= target) clearInterval(interval);
     }, 30);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.scoreBox}>
-        <Text style={styles.scoreText}>{displayScore}</Text>
-      </View>
-
+      <ScoreDisplay score={displayScore} />
       <View style={styles.buttonWrapper}>
         <AttendanceButtonScreen onClaim={handleClaim} />
       </View>
-
-      <FlatList
-        data={mockDates}
-        horizontal
-        keyExtractor={(item) => item.day.toString()}
-        showsHorizontalScrollIndicator={false} // ✅ hide scrollbar
-        style={styles.dateRow}
-        contentContainerStyle={styles.dateRowInner}
-        renderItem={({ item }) => {
-          const isSelected = item.day === selectedDay;
-          return (
-            <TouchableOpacity
-              onPress={() => setSelectedDay(item.day)}
-              style={styles.dateItem}
-            >
-              <View
-                style={[
-                  styles.dateCircle,
-                  isSelected && styles.dateCircleSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.dateText,
-                    isSelected && styles.dateTextSelected,
-                  ]}
-                >
-                  {item.day}
-                </Text>
-              </View>
-              <Text
-                style={[
-                  styles.dateLabel,
-                  isSelected && styles.dateLabelSelected,
-                ]}
-              >
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        }}
+      <DaySelector
+        dates={dates}
+        selectedDay={selectedDay}
+        setSelectedDay={setSelectedDay}
       />
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
   },
-  scoreBox: {
-    position: "absolute",
-    top: 100,
-    right: 40,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#222",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#fff",
-    opacity: 0.5,
-  },
-  scoreText: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
   buttonWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  dateRow: {
-    position: "absolute",
-    bottom: 50,
-    width: "100%",
-  },
-  dateRowInner: {
-    paddingHorizontal: 16,
-    alignItems: "center",
-  },
-  dateItem: {
-    alignItems: "center",
-    marginHorizontal: 4,
-  },
-  dateCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#555",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  dateCircleSelected: {
-    backgroundColor: "#fff",
-    borderColor: "#fff",
-  },
-  dateText: {
-    color: "#888",
-    fontWeight: "bold",
-  },
-  dateTextSelected: {
-    color: "#000",
-  },
-  dateLabel: {
-    marginTop: 4,
-    fontSize: 12,
-    color: "#666",
-  },
-  dateLabelSelected: {
-    color: "#fff",
-    fontWeight: "bold",
   },
 });

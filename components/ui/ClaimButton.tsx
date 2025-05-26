@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Vibration,
   View,
 } from "react-native";
 
@@ -57,9 +58,10 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
-
+    Vibration.vibrate([0, 100, 100], true);
     timeoutRef.current = setTimeout(() => {
       triggerExpEffect();
+      Vibration.cancel();
     }, HOLD_DURATION);
   };
 
