@@ -19,7 +19,7 @@ export const DayItem = ({
   <TouchableOpacity
     onPress={onPress}
     disabled={disabled}
-    style={[styles.dateItem, disabled && { opacity: 0.3 }]} // visually dim disabled buttons
+    style={[styles.dateItem, disabled && { opacity: 0.5 }]}
   >
     <View style={[styles.dateCircle, isSelected && styles.dateCircleSelected]}>
       {isClaimed ? (

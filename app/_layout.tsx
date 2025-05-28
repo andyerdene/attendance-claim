@@ -1,32 +1,15 @@
-import { Stack } from "expo-router";
+import { RootNavigator } from "@/components/RootNavigator";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
-export default function App() {
+export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </GestureHandlerRootView>
+    <ClerkProvider tokenCache={tokenCache}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <RootNavigator />
+      </GestureHandlerRootView>
+    </ClerkProvider>
   );
 }
-
-// export default function RootLayout() {
-//   const [loaded] = useFonts({
-//     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-//   });
-
-//   if (!loaded) {
-//     // Async font loading only occurs in development.
-//     return null;
-//   }
-
-//   return (
-//     <ThemeProvider value={DarkTheme}>
-
-//       {/* <StatusBar style="auto" /> */}
-//     </ThemeProvider>
-//   );
-// }

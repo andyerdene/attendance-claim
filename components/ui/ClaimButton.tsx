@@ -12,8 +12,9 @@ import {
 const HOLD_DURATION = 1500;
 type Props = {
   onClaim?: () => void;
+  isClaimed: boolean;
 };
-export function AttendanceButtonScreen({ onClaim }: Props) {
+export function AttendanceButtonScreen({ onClaim, isClaimed }: Props) {
   const [showExp, setShowExp] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -114,23 +115,43 @@ export function AttendanceButtonScreen({ onClaim }: Props) {
           +10 EXP
         </Animated.Text>
       )}
-
-      <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut}>
-        <Animated.View
-          style={[styles.circleButton, { transform: [{ scale: scaleAnim }] }]}
-        >
+      {!isClaimed ? (
+        <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut}>
           <Animated.View
-            style={[
-              styles.chargeCircle,
-              {
-                opacity: chargeOpacity,
-                transform: [{ scale: chargeScale }],
-              },
-            ]}
-          />
-          <Text style={styles.buttonText}>ATTENDANCE</Text>
-        </Animated.View>
-      </TouchableOpacity>
+            style={[styles.circleButton, { transform: [{ scale: scaleAnim }] }]}
+          >
+            <Animated.View
+              style={[
+                styles.chargeCircle,
+                {
+                  opacity: chargeOpacity,
+                  transform: [{ scale: chargeScale }],
+                },
+              ]}
+            />
+            <Text style={styles.buttonText}>Claim Attendance</Text>
+          </Animated.View>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity>
+          <Animated.View
+            style={[styles.circleButton, { transform: [{ scale: scaleAnim }] }]}
+          >
+            <Animated.View
+              style={[
+                styles.chargeCircle,
+                {
+                  opacity: chargeOpacity,
+                  transform: [{ scale: chargeScale }],
+                },
+              ]}
+            />
+            <Text style={[styles.buttonText, { fontSize: 200, color: "#888" }]}>
+              ✓
+            </Text>
+          </Animated.View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -161,9 +182,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 28,
     letterSpacing: 1,
     zIndex: 1,
+    padding: 10,
+    textAlign: "center",
+    wordWrap: "break-word",
   },
   expText: {
     position: "absolute",
